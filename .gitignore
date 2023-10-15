@@ -485,7 +485,7 @@ bin
 obj
 Packages
 Gallery
-./Bonsai/bonsai_env/Extensions
+Bonsai/bonsai_env/Extensions
 Bonsai.exe.WebView2
 *.bin
 *.avi
