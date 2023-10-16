@@ -1,5 +1,6 @@
 ### This is a repository for the UCL Neuroscience/Machine Learning coding exercise.
 
+
 ##### Exercise
 
 Replicate Figure 3.7 from
@@ -20,6 +21,52 @@ c) in Bonsai.
 
 For personal reference, the figure is on page 155.
 
-##### Summary
 
-The exercise is about implementing a Bayesian approach to linear regression. 
+##### Overview
+
+The exercise is about implementing a Bayesian model within the framework of linear regression.
+
+
+##### Problem Description
+
+Maximizing likelihood inherently drives the addition of more parameters to the model to boost accuracy. This leads to increased model complexity, which may compromise the models ability to generalize to new data. This is the problem of overfitting.
+
+Regularization techniques can help to offset the problem of overfitting by penalizing superfluous parameters, but their efficacy depends on the specific regularization employed, since certain basis functions can skew the results towards bias or variance.
+
+In contrast, the Bayesian approach makes use of a prior distribution of expected model parameters. The expected probabilities then update through subsequent observations of data, called the posterior distribution. This method can help address issues with overfitting, since the model will always estimate model parameters with respect to the initial prior distribution to some extent.
+
+
+##### Recommended installation
+
+Install VS Code for code editor
+Inside VS Code install Python, Jupyter extensions
+
+Python - version 3.10.12
+
+Install latest Bonsai version (v2.8.1 at this time)
+
+Install dotnet-7.0 runtime 
+
+
+##### Running in Python
+
+The python portion is written in a Jupyter notebook and was built using Python kernel 3.10 (recommended)
+
+Install packages from python directory:
+  pip install -r requirements.txt
+
+Make sure the appropriate python environment is selected for Jupyter.
+
+
+##### Running in C#
+
+Requires AvaloniaUI,
+
+
+##### Running in Bonsai-Rx
+
+Run setup script in Bonsai repository.
+
+In Windows use `.\Setup.ps1`
+
+In Linux use `./Setup.sh`

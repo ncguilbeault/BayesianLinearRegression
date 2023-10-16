@@ -21,7 +21,7 @@
             </Expression>
             <Expression xsi:type="Combinator">
               <Combinator xsi:type="num:CreateRandom">
-                <num:Seed>1</num:Seed>
+                <num:Seed>0</num:Seed>
               </Combinator>
             </Expression>
             <Expression xsi:type="rx:BehaviorSubject">
@@ -1013,7 +1013,7 @@
               <scr:Expression>new (it.Item1 as x, it.Item2 as t)</scr:Expression>
             </Expression>
             <Expression xsi:type="io:CsvWriter">
-              <io:FileName>synthetic_data.csv</io:FileName>
+              <io:FileName>..\\..\\data\\synthetic_data.csv</io:FileName>
               <io:Append>false</io:Append>
               <io:Overwrite>true</io:Overwrite>
               <io:Suffix>None</io:Suffix>
