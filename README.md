@@ -1,4 +1,4 @@
-# UCL Neuroscience/Machine Learning coding exercise.
+# Bayesian Linear Regression
 
 
 ## Exercise
