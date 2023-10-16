@@ -58,13 +58,15 @@ Make sure the appropriate python environment is selected for Jupyter.
 
 Hit the `Run All` option.
 
-The first section explains the problem. 
+The first section summarizes and provides information about the problem. 
 
-The second section creates classes for plotting, data generation, and bayesian linear regression.
+The second section creates classes for plotting, data generation, and Bayesian linear regression.
 
 The third section creates the original 3x4 panel figure.
 
 The last section creates an online learning class that updates the likelihood, posterior distribution, and random data samples every second with each observation of a new data sample.
+
+Press the `Interrupt` button to stop the loop at any time.
 
 
 ## Running in Bonsai-Rx
@@ -73,16 +75,14 @@ Run setup script in Bonsai repository.
 
 In Windows, open PowerShell and run `.\Setup.ps1`.
 
-In Linux, make shell script executable and run `./Setup.sh` in terminal.
+Alternatively, in Linux, make shell script executable and run `./Setup.sh` in terminal.
 
-This should download the Bonsai executable and required packages. Alternatively, you can install Bonsai globally or in a seperate folder and install the necessary packages found in the Bonsai.config file.
+This should automatically download and install the Bonsai executable and required packages. Alternatively, you can install Bonsai globally or in a seperate folder and install the necessary packages found in the Bonsai.config file.
 
-Once Bonsai and required packages are installed, launch Bonsai and select `open file`. Navigate to the directory called Bonsai/workflows.
-
-There are 3 workflows available:
+Once Bonsai and the required packages are installed, launch Bonsai and select `open file` from the menu. Navigate to the subdirectory called workflows and select one of the three workflows.
 
 - BayesianLinearRegression: when this workflow is run, it will render the original 3x4 panel figure at runtime.
 - OnlineBayesianLinearRegression_KeyDown: whenever a key is pressed, a new data sample is generated and the likelihood/posterior distribution is updated
 - OnlineBayesianLinearRegression_Timer: a new data sample is generated and the likelihood/posterior distribution is updated every second
 
-To open up the visualizer, double click the `FigureGeneration` node while the workflow is running or left click the node, move the cursor to `Show Visualizer`, and then select the `TableLayoutPanelVisualizer`. 
+To open up the visualizer, double click the `FigureGeneration` node while the workflow is running or left click the node, go to `Show Visualizer`, and then select the `TableLayoutPanelVisualizer`.
