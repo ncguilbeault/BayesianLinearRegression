@@ -1,7 +1,7 @@
-### This is a repository for the UCL Neuroscience/Machine Learning coding exercise.
+# UCL Neuroscience/Machine Learning coding exercise.
 
 
-##### Exercise
+## Exercise
 
 Replicate Figure 3.7 from
 
@@ -15,58 +15,74 @@ Replicate Figure 3.7 from
   publisher={Springer}
 } 
 
-a) in Python,
-b) in C#,
-c) in Bonsai.
+- in Python
+- in C#
+- in Bonsai
 
 For personal reference, the figure is on page 155.
 
 
-##### Overview
+## Problem Overview
 
-The exercise is about implementing a Bayesian model within the framework of linear regression.
+The exercise is about implementing a Bayesian model within the framework of linear regression. The goal is to recreate the figure shown in the reference to create an online learning model where the posterior distribution of the Bayesian model will update continuously with new observations.
 
 
-##### Problem Description
+## Problem Description
 
 Maximizing likelihood inherently drives the addition of more parameters to the model to boost accuracy. This leads to increased model complexity, which may compromise the models ability to generalize to new data. This is the problem of overfitting.
 
 Regularization techniques can help to offset the problem of overfitting by penalizing superfluous parameters, but their efficacy depends on the specific regularization employed, since certain basis functions can skew the results towards bias or variance.
 
-In contrast, the Bayesian approach makes use of a prior distribution of expected model parameters. The expected probabilities then update through subsequent observations of data, called the posterior distribution. This method can help address issues with overfitting, since the model will always estimate model parameters with respect to the initial prior distribution to some extent.
+In contrast, the Bayesian approach makes use of a prior distribution of expected model parameters. The expected probabilities then update through subsequent observations of data, called the posterior distribution. This method can help address issues with overfitting, since the model will always estimate model parameters with respect to the initial prior distribution to some extent. However, Bayesian regression can be computationally intensive and hinges on the choice of priors.
+
+In online learning, the bayesian model will update the posterior distribution with every new data point it observes.
 
 
-##### Recommended installation
+## Recommended installation
 
 Install VS Code for code editor
-Inside VS Code install Python, Jupyter extensions
-
-Python - version 3.10.12
-
-Install latest Bonsai version (v2.8.1 at this time)
-
-Install dotnet-7.0 runtime 
+Install Python version 3.10.12
+Inside VS Code install Python extension, Jupyter extension
 
 
-##### Running in Python
+## Running in Python
 
-The python portion is written in a Jupyter notebook and was built using Python kernel 3.10 (recommended)
+Jupyter notebook is required. Python version 3.10 is recommended but other versions may work also
 
-Install packages from python directory:
+To start, install packages from python directory:
   pip install -r requirements.txt
+
+It is recommended to use a virtual environment for reproducability. 
 
 Make sure the appropriate python environment is selected for Jupyter.
 
+Hit the `Run All` option.
 
-##### Running in C#
+The first section explains the problem. 
 
-Requires AvaloniaUI,
+The second section creates classes for plotting, data generation, and bayesian linear regression.
+
+The third section creates the original 3x4 panel figure.
+
+The last section creates an online learning class that updates the likelihood, posterior distribution, and random data samples every second with each observation of a new data sample.
 
 
-##### Running in Bonsai-Rx
+## Running in Bonsai-Rx
 
 Run setup script in Bonsai repository.
 
-In Windows use `.\Setup.ps1`
+In Windows, open PowerShell and run `.\Setup.ps1`.
 
-In Linux use `./Setup.sh`
+In Linux, make shell script executable and run `./Setup.sh` in terminal.
+
+This should download the Bonsai executable and required packages. Alternatively, you can install Bonsai globally or in a seperate folder and install the necessary packages found in the Bonsai.config file.
+
+Once Bonsai and required packages are installed, launch Bonsai and select `open file`. Navigate to the directory called Bonsai/workflows.
+
+There are 3 workflows available:
+
+- BayesianLinearRegression: when this workflow is run, it will render the original 3x4 panel figure at runtime.
+- OnlineBayesianLinearRegression_KeyDown: whenever a key is pressed, a new data sample is generated and the likelihood/posterior distribution is updated
+- OnlineBayesianLinearRegression_Timer: a new data sample is generated and the likelihood/posterior distribution is updated every second
+
+To open up the visualizer, double click the `FigureGeneration` node while the workflow is running or left click the node, move the cursor to `Show Visualizer`, and then select the `TableLayoutPanelVisualizer`. 

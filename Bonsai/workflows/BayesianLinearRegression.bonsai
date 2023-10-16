@@ -5,9 +5,11 @@
                  xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
                  xmlns:p1="clr-namespace:Bonsai.Numerics.Distributions;assembly=Bonsai.Numerics"
                  xmlns:p2="clr-namespace:;assembly=Extensions"
+                 xmlns:sys="clr-namespace:System;assembly=mscorlib"
                  xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
-                 xmlns:viz="clr-namespace:Bonsai.Design.Visualizers;assembly=Bonsai.Design.Visualizers"
                  xmlns:scr="clr-namespace:Bonsai.Scripting.Expressions;assembly=Bonsai.Scripting.Expressions"
+                 xmlns:p3="clr-namespace:Bonsai.Vision.Design;assembly=Bonsai.Vision.Design"
+                 xmlns:viz="clr-namespace:Bonsai.Design.Visualizers;assembly=Bonsai.Design.Visualizers"
                  xmlns:io="clr-namespace:Bonsai.IO;assembly=Bonsai.System"
                  xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
@@ -260,6 +262,56 @@
             <Expression xsi:type="rx:BehaviorSubject">
               <Name>alpha</Name>
             </Expression>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="Value" DisplayName="Count" Category="3.Memory" />
+            </Expression>
+            <Expression xsi:type="PropertySource" TypeArguments="p2:ToVector,sys:Nullable(sys:Int32)">
+              <MemberName>Count</MemberName>
+              <Value xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="rx:BehaviorSubject">
+              <Name>count</Name>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>x</Name>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>count</Name>
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="Count" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="p2:ToVector">
+                <p2:Count xsi:nil="true" />
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>xVector</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>t</Name>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>count</Name>
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="Count" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="p2:ToVector">
+                <p2:Count xsi:nil="true" />
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>tVector</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
             <Expression xsi:type="GroupWorkflow">
               <Name>ParameterSpace</Name>
               <Workflow>
@@ -340,8 +392,20 @@
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="p2:MatrixNormal" />
                   </Expression>
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>PriorDistribution</Name>
+                  <Expression xsi:type="rx:ReplaySubject">
+                    <Name>PriorPosteriorDistribution</Name>
+                    <rx:BufferSize xsi:nil="true" />
+                  </Expression>
+                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\ProbabilityDensityFunction.bonsai" />
+                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\PdfToImage.bonsai" />
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="cv:Flip">
+                      <cv:Mode>Vertical</cv:Mode>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="rx:ReplaySubject">
+                    <Name>PriorPosteriorImage</Name>
+                    <rx:BufferSize xsi:nil="true" />
                   </Expression>
                 </Nodes>
                 <Edges>
@@ -353,6 +417,10 @@
                   <Edge From="7" To="8" Label="Source2" />
                   <Edge From="8" To="9" Label="Source1" />
                   <Edge From="9" To="10" Label="Source1" />
+                  <Edge From="10" To="11" Label="Source1" />
+                  <Edge From="11" To="12" Label="Source1" />
+                  <Edge From="12" To="13" Label="Source1" />
+                  <Edge From="13" To="14" Label="Source1" />
                 </Edges>
               </Workflow>
             </Expression>
@@ -364,6 +432,16 @@
             <Edge From="4" To="5" Label="Source1" />
             <Edge From="6" To="7" Label="Source1" />
             <Edge From="7" To="8" Label="Source1" />
+            <Edge From="9" To="10" Label="Source1" />
+            <Edge From="10" To="11" Label="Source1" />
+            <Edge From="12" To="15" Label="Source1" />
+            <Edge From="13" To="14" Label="Source1" />
+            <Edge From="14" To="15" Label="Source2" />
+            <Edge From="15" To="16" Label="Source1" />
+            <Edge From="17" To="20" Label="Source1" />
+            <Edge From="18" To="19" Label="Source1" />
+            <Edge From="19" To="20" Label="Source2" />
+            <Edge From="20" To="21" Label="Source1" />
           </Edges>
         </Workflow>
       </Expression>
@@ -371,59 +449,128 @@
         <Name>FigureGeneration</Name>
         <Workflow>
           <Nodes>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="cv:SolidColor">
+                <cv:Size>
+                  <cv:Width>100</cv:Width>
+                  <cv:Height>100</cv:Height>
+                </cv:Size>
+                <cv:Depth>U8</cv:Depth>
+                <cv:Channels>3</cv:Channels>
+                <cv:Color>
+                  <cv:Val0>255</cv:Val0>
+                  <cv:Val1>255</cv:Val1>
+                  <cv:Val2>255</cv:Val2>
+                  <cv:Val3>255</cv:Val3>
+                </cv:Color>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>xVector</Name>
+            </Expression>
+            <Expression xsi:type="scr:ExpressionTransform">
+              <scr:Expression>it[it.Count-1]</scr:Expression>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>tVector</Name>
+            </Expression>
+            <Expression xsi:type="scr:ExpressionTransform">
+              <scr:Expression>it[it.Count-1]</scr:Expression>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="IncludeWorkflow" Path="Extensions\Likelihood.bonsai" />
+            <Expression xsi:type="IncludeWorkflow" Path="Extensions\PdfToImage.bonsai" />
+            <Expression xsi:type="IncludeWorkflow" Path="Extensions\OverlayCrossOnImage.bonsai" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Merge" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="cv:Flip">
+                <cv:Mode>Vertical</cv:Mode>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>LikelihoodImage</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>xVector</Name>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>tVector</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Zip" />
+            </Expression>
+            <Expression xsi:type="IncludeWorkflow" Path="Extensions\PosteriorDistribution.bonsai" />
+            <Expression xsi:type="MulticastSubject">
+              <Name>PriorPosteriorDistribution</Name>
+            </Expression>
+            <Expression xsi:type="IncludeWorkflow" Path="Extensions\ProbabilityDensityFunction.bonsai" />
+            <Expression xsi:type="IncludeWorkflow" Path="Extensions\PdfToImage.bonsai" />
+            <Expression xsi:type="IncludeWorkflow" Path="Extensions\OverlayCrossOnImage.bonsai" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="cv:Flip">
+                <cv:Mode>Vertical</cv:Mode>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="MulticastSubject">
+              <Name>PriorPosteriorImage</Name>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>PriorPosteriorDistribution</Name>
+            </Expression>
+            <Expression xsi:type="IncludeWorkflow" Path="Extensions\EvaluateRandomSamples.bonsai">
+              <NumSamples>6</NumSamples>
+            </Expression>
+            <Expression xsi:type="rx:ReplaySubject">
+              <Name>RandomSamples</Name>
+              <rx:BufferSize xsi:nil="true" />
+            </Expression>
             <Expression xsi:type="GroupWorkflow">
               <Name>Row1</Name>
               <Workflow>
                 <Nodes>
                   <Expression xsi:type="SubscribeSubject">
-                    <Name>PriorDistribution</Name>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>Meshgrid</Name>
+                    <Name>LikelihoodImage</Name>
                   </Expression>
                   <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="rx:Zip" />
-                  </Expression>
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\ProbabilityDensityFunction.bonsai" />
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\PdfToImage.bonsai" />
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>PriorImage</Name>
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="cv:SolidColor">
-                      <cv:Size>
-                        <cv:Width>100</cv:Width>
-                        <cv:Height>100</cv:Height>
-                      </cv:Size>
-                      <cv:Depth>U8</cv:Depth>
-                      <cv:Channels>3</cv:Channels>
-                      <cv:Color>
-                        <cv:Val0>255</cv:Val0>
-                        <cv:Val1>255</cv:Val1>
-                        <cv:Val2>255</cv:Val2>
-                        <cv:Val3>255</cv:Val3>
-                      </cv:Color>
+                    <Combinator xsi:type="rx:Take">
+                      <rx:Count>1</rx:Count>
                     </Combinator>
                   </Expression>
-                  <Expression xsi:type="VisualizerMapping" />
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>PriorImage</Name>
+                  <Expression xsi:type="VisualizerMapping">
+                    <VisualizerType xsi:type="TypeMapping" TypeArguments="p3:IplImageVisualizer" />
                   </Expression>
-                  <Expression xsi:type="VisualizerMapping" />
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>PriorPosteriorImage</Name>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Take">
+                      <rx:Count>1</rx:Count>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="VisualizerMapping">
+                    <VisualizerType xsi:type="TypeMapping" TypeArguments="p3:IplImageVisualizer" />
+                  </Expression>
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>RandomSamples</Name>
+                  </Expression>
                   <Expression xsi:type="SubscribeSubject">
                     <Name>ParameterVector</Name>
                   </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>PriorDistribution</Name>
-                  </Expression>
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\EvaluateRandomSamples.bonsai">
-                    <NumSamples>6</NumSamples>
-                  </Expression>
                   <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="rx:Zip" />
+                    <Combinator xsi:type="rx:WithLatestFrom" />
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="p2:PlotRandomSamples" />
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Take">
+                      <rx:Count>1</rx:Count>
+                    </Combinator>
                   </Expression>
                   <Expression xsi:type="VisualizerMapping">
                     <VisualizerType xsi:type="TypeMapping" TypeArguments="p2:PlotRandomSamplesVisualizer" />
@@ -438,22 +585,19 @@
                   <Expression xsi:type="WorkflowOutput" />
                 </Nodes>
                 <Edges>
-                  <Edge From="0" To="2" Label="Source1" />
-                  <Edge From="1" To="2" Label="Source2" />
-                  <Edge From="2" To="3" Label="Source1" />
+                  <Edge From="0" To="1" Label="Source1" />
+                  <Edge From="1" To="2" Label="Source1" />
+                  <Edge From="2" To="12" Label="Source1" />
                   <Edge From="3" To="4" Label="Source1" />
                   <Edge From="4" To="5" Label="Source1" />
-                  <Edge From="6" To="7" Label="Source1" />
-                  <Edge From="7" To="16" Label="Source1" />
+                  <Edge From="5" To="12" Label="Source2" />
+                  <Edge From="6" To="8" Label="Source1" />
+                  <Edge From="7" To="8" Label="Source2" />
                   <Edge From="8" To="9" Label="Source1" />
-                  <Edge From="9" To="16" Label="Source2" />
-                  <Edge From="10" To="13" Label="Source1" />
-                  <Edge From="11" To="12" Label="Source1" />
-                  <Edge From="12" To="13" Label="Source2" />
-                  <Edge From="13" To="14" Label="Source1" />
-                  <Edge From="14" To="15" Label="Source1" />
-                  <Edge From="15" To="16" Label="Source3" />
-                  <Edge From="16" To="17" Label="Source1" />
+                  <Edge From="9" To="10" Label="Source1" />
+                  <Edge From="10" To="11" Label="Source1" />
+                  <Edge From="11" To="12" Label="Source3" />
+                  <Edge From="12" To="13" Label="Source1" />
                 </Edges>
               </Workflow>
             </Expression>
@@ -463,118 +607,82 @@
               <Workflow>
                 <Nodes>
                   <Expression xsi:type="SubscribeSubject">
-                    <Name>x</Name>
+                    <Name>LikelihoodImage</Name>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Skip">
+                      <rx:Count>1</rx:Count>
+                    </Combinator>
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="rx:Take">
                       <rx:Count>1</rx:Count>
                     </Combinator>
                   </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="p2:ToVector">
-                      <p2:Count xsi:nil="true" />
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>xVector1</Name>
+                  <Expression xsi:type="VisualizerMapping">
+                    <VisualizerType xsi:type="TypeMapping" TypeArguments="p3:IplImageVisualizer" />
                   </Expression>
                   <Expression xsi:type="SubscribeSubject">
-                    <Name>t</Name>
+                    <Name>PriorPosteriorImage</Name>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Skip">
+                      <rx:Count>1</rx:Count>
+                    </Combinator>
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="rx:Take">
                       <rx:Count>1</rx:Count>
                     </Combinator>
                   </Expression>
+                  <Expression xsi:type="VisualizerMapping">
+                    <VisualizerType xsi:type="TypeMapping" TypeArguments="p3:IplImageVisualizer" />
+                  </Expression>
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>RandomSamples</Name>
+                  </Expression>
                   <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="p2:ToVector">
-                      <p2:Count xsi:nil="true" />
+                    <Combinator xsi:type="rx:Skip">
+                      <rx:Count>1</rx:Count>
                     </Combinator>
                   </Expression>
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>tVector1</Name>
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>xVector</Name>
                   </Expression>
                   <Expression xsi:type="SubscribeSubject">
-                    <Name>xVector1</Name>
-                  </Expression>
-                  <Expression xsi:type="scr:ExpressionTransform">
-                    <scr:Expression>it[it.Count-1]</scr:Expression>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>tVector1</Name>
-                  </Expression>
-                  <Expression xsi:type="scr:ExpressionTransform">
-                    <scr:Expression>it[it.Count-1]</scr:Expression>
-                  </Expression>
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\Likelihood.bonsai" />
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\PdfToImage.bonsai" />
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\OverlayCrossOnImage.bonsai" />
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>LikelihoodImage1</Name>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>xVector1</Name>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>tVector1</Name>
-                  </Expression>
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\PosteriorDistribution.bonsai" />
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>PosteriorDistribution1</Name>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>PosteriorDistribution1</Name>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>Meshgrid</Name>
+                    <Name>tVector</Name>
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="rx:Zip" />
                   </Expression>
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\ProbabilityDensityFunction.bonsai" />
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\PdfToImage.bonsai" />
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\OverlayCrossOnImage.bonsai" />
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>PosteriorImage1</Name>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>LikelihoodImage1</Name>
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="cv:Flip">
-                      <cv:Mode>Vertical</cv:Mode>
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="VisualizerMapping" />
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>PosteriorImage1</Name>
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="cv:Flip">
-                      <cv:Mode>Vertical</cv:Mode>
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="VisualizerMapping" />
                   <Expression xsi:type="SubscribeSubject">
                     <Name>ParameterVector</Name>
                   </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>PosteriorDistribution1</Name>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:WithLatestFrom" />
                   </Expression>
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\EvaluateRandomSamples.bonsai">
-                    <NumSamples>6</NumSamples>
+                  <Expression xsi:type="MemberSelector">
+                    <Selector>Item1.Item1</Selector>
                   </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>xVector1</Name>
+                  <Expression xsi:type="MemberSelector">
+                    <Selector>Item2</Selector>
                   </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>tVector1</Name>
+                  <Expression xsi:type="MemberSelector">
+                    <Selector>Item1.Item2</Selector>
+                  </Expression>
+                  <Expression xsi:type="MemberSelector">
+                    <Selector>Item1.Item3</Selector>
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="rx:Zip" />
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="p2:PlotRandomSamples" />
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Take">
+                      <rx:Count>1</rx:Count>
+                    </Combinator>
                   </Expression>
                   <Expression xsi:type="VisualizerMapping">
                     <VisualizerType xsi:type="TypeMapping" TypeArguments="p2:PlotRandomSamplesVisualizer" />
@@ -592,40 +700,30 @@
                   <Edge From="0" To="1" Label="Source1" />
                   <Edge From="1" To="2" Label="Source1" />
                   <Edge From="2" To="3" Label="Source1" />
+                  <Edge From="3" To="23" Label="Source1" />
                   <Edge From="4" To="5" Label="Source1" />
                   <Edge From="5" To="6" Label="Source1" />
                   <Edge From="6" To="7" Label="Source1" />
+                  <Edge From="7" To="23" Label="Source2" />
                   <Edge From="8" To="9" Label="Source1" />
                   <Edge From="9" To="12" Label="Source1" />
-                  <Edge From="10" To="11" Label="Source1" />
-                  <Edge From="11" To="12" Label="Source2" />
-                  <Edge From="12" To="13" Label="Source1" />
-                  <Edge From="13" To="14" Label="Source1" />
+                  <Edge From="10" To="12" Label="Source2" />
+                  <Edge From="11" To="12" Label="Source3" />
+                  <Edge From="12" To="14" Label="Source1" />
+                  <Edge From="13" To="14" Label="Source2" />
                   <Edge From="14" To="15" Label="Source1" />
-                  <Edge From="16" To="18" Label="Source1" />
-                  <Edge From="17" To="18" Label="Source2" />
-                  <Edge From="18" To="19" Label="Source1" />
-                  <Edge From="20" To="22" Label="Source1" />
-                  <Edge From="21" To="22" Label="Source2" />
-                  <Edge From="22" To="23" Label="Source1" />
+                  <Edge From="14" To="16" Label="Source1" />
+                  <Edge From="14" To="17" Label="Source1" />
+                  <Edge From="14" To="18" Label="Source1" />
+                  <Edge From="15" To="19" Label="Source1" />
+                  <Edge From="16" To="19" Label="Source2" />
+                  <Edge From="17" To="19" Label="Source3" />
+                  <Edge From="18" To="19" Label="Source4" />
+                  <Edge From="19" To="20" Label="Source1" />
+                  <Edge From="20" To="21" Label="Source1" />
+                  <Edge From="21" To="22" Label="Source1" />
+                  <Edge From="22" To="23" Label="Source3" />
                   <Edge From="23" To="24" Label="Source1" />
-                  <Edge From="24" To="25" Label="Source1" />
-                  <Edge From="25" To="26" Label="Source1" />
-                  <Edge From="27" To="28" Label="Source1" />
-                  <Edge From="28" To="29" Label="Source1" />
-                  <Edge From="29" To="41" Label="Source1" />
-                  <Edge From="30" To="31" Label="Source1" />
-                  <Edge From="31" To="32" Label="Source1" />
-                  <Edge From="32" To="41" Label="Source2" />
-                  <Edge From="33" To="38" Label="Source1" />
-                  <Edge From="34" To="35" Label="Source1" />
-                  <Edge From="35" To="38" Label="Source2" />
-                  <Edge From="36" To="38" Label="Source3" />
-                  <Edge From="37" To="38" Label="Source4" />
-                  <Edge From="38" To="39" Label="Source1" />
-                  <Edge From="39" To="40" Label="Source1" />
-                  <Edge From="40" To="41" Label="Source3" />
-                  <Edge From="41" To="42" Label="Source1" />
                 </Edges>
               </Workflow>
             </Expression>
@@ -635,118 +733,92 @@
               <Workflow>
                 <Nodes>
                   <Expression xsi:type="SubscribeSubject">
-                    <Name>x</Name>
+                    <Name>LikelihoodImage</Name>
                   </Expression>
                   <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="rx:Take">
+                    <Combinator xsi:type="rx:Skip">
                       <rx:Count>2</rx:Count>
                     </Combinator>
                   </Expression>
                   <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="p2:ToVector">
-                      <p2:Count xsi:nil="true" />
+                    <Combinator xsi:type="rx:Take">
+                      <rx:Count>1</rx:Count>
                     </Combinator>
                   </Expression>
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>xVector2</Name>
+                  <Expression xsi:type="VisualizerMapping">
+                    <VisualizerType xsi:type="TypeMapping" TypeArguments="p3:IplImageVisualizer" />
                   </Expression>
                   <Expression xsi:type="SubscribeSubject">
-                    <Name>t</Name>
+                    <Name>PriorPosteriorImage</Name>
                   </Expression>
                   <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="rx:Take">
+                    <Combinator xsi:type="rx:Skip">
                       <rx:Count>2</rx:Count>
                     </Combinator>
                   </Expression>
                   <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="p2:ToVector">
-                      <p2:Count xsi:nil="true" />
+                    <Combinator xsi:type="rx:Take">
+                      <rx:Count>1</rx:Count>
                     </Combinator>
                   </Expression>
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>tVector2</Name>
+                  <Expression xsi:type="VisualizerMapping">
+                    <VisualizerType xsi:type="TypeMapping" TypeArguments="p3:IplImageVisualizer" />
                   </Expression>
                   <Expression xsi:type="SubscribeSubject">
-                    <Name>xVector2</Name>
+                    <Name>RandomSamples</Name>
                   </Expression>
-                  <Expression xsi:type="scr:ExpressionTransform">
-                    <scr:Expression>it[it.Count-1]</scr:Expression>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>tVector2</Name>
-                  </Expression>
-                  <Expression xsi:type="scr:ExpressionTransform">
-                    <scr:Expression>it[it.Count-1]</scr:Expression>
-                  </Expression>
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\Likelihood.bonsai" />
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\PdfToImage.bonsai" />
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\OverlayCrossOnImage.bonsai" />
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>LikelihoodImage2</Name>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Skip">
+                      <rx:Count>2</rx:Count>
+                    </Combinator>
                   </Expression>
                   <Expression xsi:type="SubscribeSubject">
-                    <Name>xVector2</Name>
+                    <Name>xVector</Name>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Skip">
+                      <rx:Count>1</rx:Count>
+                    </Combinator>
                   </Expression>
                   <Expression xsi:type="SubscribeSubject">
-                    <Name>tVector2</Name>
+                    <Name>tVector</Name>
                   </Expression>
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\PosteriorDistribution.bonsai" />
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>PosteriorDistribution2</Name>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>PosteriorDistribution2</Name>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>Meshgrid</Name>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Skip">
+                      <rx:Count>1</rx:Count>
+                    </Combinator>
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="rx:Zip" />
                   </Expression>
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\ProbabilityDensityFunction.bonsai" />
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\PdfToImage.bonsai" />
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\OverlayCrossOnImage.bonsai" />
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>PosteriorImage2</Name>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>LikelihoodImage2</Name>
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="cv:Flip">
-                      <cv:Mode>Vertical</cv:Mode>
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="VisualizerMapping" />
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>PosteriorImage2</Name>
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="cv:Flip">
-                      <cv:Mode>Vertical</cv:Mode>
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="VisualizerMapping" />
                   <Expression xsi:type="SubscribeSubject">
                     <Name>ParameterVector</Name>
                   </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>PosteriorDistribution2</Name>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:WithLatestFrom" />
                   </Expression>
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\EvaluateRandomSamples.bonsai">
-                    <NumSamples>6</NumSamples>
+                  <Expression xsi:type="MemberSelector">
+                    <Selector>Item1.Item1</Selector>
                   </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>xVector2</Name>
+                  <Expression xsi:type="MemberSelector">
+                    <Selector>Item2</Selector>
                   </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>tVector2</Name>
+                  <Expression xsi:type="MemberSelector">
+                    <Selector>Item1.Item2</Selector>
+                  </Expression>
+                  <Expression xsi:type="MemberSelector">
+                    <Selector>Item1.Item3</Selector>
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="rx:Zip" />
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="p2:PlotRandomSamples" />
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Take">
+                      <rx:Count>1</rx:Count>
+                    </Combinator>
                   </Expression>
                   <Expression xsi:type="VisualizerMapping">
                     <VisualizerType xsi:type="TypeMapping" TypeArguments="p2:PlotRandomSamplesVisualizer" />
@@ -764,40 +836,32 @@
                   <Edge From="0" To="1" Label="Source1" />
                   <Edge From="1" To="2" Label="Source1" />
                   <Edge From="2" To="3" Label="Source1" />
+                  <Edge From="3" To="25" Label="Source1" />
                   <Edge From="4" To="5" Label="Source1" />
                   <Edge From="5" To="6" Label="Source1" />
                   <Edge From="6" To="7" Label="Source1" />
+                  <Edge From="7" To="25" Label="Source2" />
                   <Edge From="8" To="9" Label="Source1" />
-                  <Edge From="9" To="12" Label="Source1" />
+                  <Edge From="9" To="14" Label="Source1" />
                   <Edge From="10" To="11" Label="Source1" />
-                  <Edge From="11" To="12" Label="Source2" />
+                  <Edge From="11" To="14" Label="Source2" />
                   <Edge From="12" To="13" Label="Source1" />
-                  <Edge From="13" To="14" Label="Source1" />
-                  <Edge From="14" To="15" Label="Source1" />
+                  <Edge From="13" To="14" Label="Source3" />
+                  <Edge From="14" To="16" Label="Source1" />
+                  <Edge From="15" To="16" Label="Source2" />
+                  <Edge From="16" To="17" Label="Source1" />
                   <Edge From="16" To="18" Label="Source1" />
-                  <Edge From="17" To="18" Label="Source2" />
-                  <Edge From="18" To="19" Label="Source1" />
-                  <Edge From="20" To="22" Label="Source1" />
-                  <Edge From="21" To="22" Label="Source2" />
+                  <Edge From="16" To="19" Label="Source1" />
+                  <Edge From="16" To="20" Label="Source1" />
+                  <Edge From="17" To="21" Label="Source1" />
+                  <Edge From="18" To="21" Label="Source2" />
+                  <Edge From="19" To="21" Label="Source3" />
+                  <Edge From="20" To="21" Label="Source4" />
+                  <Edge From="21" To="22" Label="Source1" />
                   <Edge From="22" To="23" Label="Source1" />
                   <Edge From="23" To="24" Label="Source1" />
-                  <Edge From="24" To="25" Label="Source1" />
+                  <Edge From="24" To="25" Label="Source3" />
                   <Edge From="25" To="26" Label="Source1" />
-                  <Edge From="27" To="28" Label="Source1" />
-                  <Edge From="28" To="29" Label="Source1" />
-                  <Edge From="29" To="41" Label="Source1" />
-                  <Edge From="30" To="31" Label="Source1" />
-                  <Edge From="31" To="32" Label="Source1" />
-                  <Edge From="32" To="41" Label="Source2" />
-                  <Edge From="33" To="38" Label="Source1" />
-                  <Edge From="34" To="35" Label="Source1" />
-                  <Edge From="35" To="38" Label="Source2" />
-                  <Edge From="36" To="38" Label="Source3" />
-                  <Edge From="37" To="38" Label="Source4" />
-                  <Edge From="38" To="39" Label="Source1" />
-                  <Edge From="39" To="40" Label="Source1" />
-                  <Edge From="40" To="41" Label="Source3" />
-                  <Edge From="41" To="42" Label="Source1" />
                 </Edges>
               </Workflow>
             </Expression>
@@ -807,118 +871,92 @@
               <Workflow>
                 <Nodes>
                   <Expression xsi:type="SubscribeSubject">
-                    <Name>x</Name>
+                    <Name>LikelihoodImage</Name>
                   </Expression>
                   <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="rx:Take">
+                    <Combinator xsi:type="rx:Skip">
                       <rx:Count>20</rx:Count>
                     </Combinator>
                   </Expression>
                   <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="p2:ToVector">
-                      <p2:Count xsi:nil="true" />
+                    <Combinator xsi:type="rx:Take">
+                      <rx:Count>1</rx:Count>
                     </Combinator>
                   </Expression>
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>xVector3</Name>
+                  <Expression xsi:type="VisualizerMapping">
+                    <VisualizerType xsi:type="TypeMapping" TypeArguments="p3:IplImageVisualizer" />
                   </Expression>
                   <Expression xsi:type="SubscribeSubject">
-                    <Name>t</Name>
+                    <Name>PriorPosteriorImage</Name>
                   </Expression>
                   <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="rx:Take">
+                    <Combinator xsi:type="rx:Skip">
                       <rx:Count>20</rx:Count>
                     </Combinator>
                   </Expression>
                   <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="p2:ToVector">
-                      <p2:Count xsi:nil="true" />
+                    <Combinator xsi:type="rx:Take">
+                      <rx:Count>1</rx:Count>
                     </Combinator>
                   </Expression>
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>tVector3</Name>
+                  <Expression xsi:type="VisualizerMapping">
+                    <VisualizerType xsi:type="TypeMapping" TypeArguments="p3:IplImageVisualizer" />
                   </Expression>
                   <Expression xsi:type="SubscribeSubject">
-                    <Name>xVector3</Name>
+                    <Name>RandomSamples</Name>
                   </Expression>
-                  <Expression xsi:type="scr:ExpressionTransform">
-                    <scr:Expression>it[it.Count-1]</scr:Expression>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>tVector3</Name>
-                  </Expression>
-                  <Expression xsi:type="scr:ExpressionTransform">
-                    <scr:Expression>it[it.Count-1]</scr:Expression>
-                  </Expression>
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\Likelihood.bonsai" />
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\PdfToImage.bonsai" />
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\OverlayCrossOnImage.bonsai" />
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>LikelihoodImage3</Name>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Skip">
+                      <rx:Count>20</rx:Count>
+                    </Combinator>
                   </Expression>
                   <Expression xsi:type="SubscribeSubject">
-                    <Name>xVector3</Name>
+                    <Name>xVector</Name>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Skip">
+                      <rx:Count>19</rx:Count>
+                    </Combinator>
                   </Expression>
                   <Expression xsi:type="SubscribeSubject">
-                    <Name>tVector3</Name>
+                    <Name>tVector</Name>
                   </Expression>
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\PosteriorDistribution.bonsai" />
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>PosteriorDistribution3</Name>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>PosteriorDistribution3</Name>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>Meshgrid</Name>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Skip">
+                      <rx:Count>19</rx:Count>
+                    </Combinator>
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="rx:Zip" />
                   </Expression>
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\ProbabilityDensityFunction.bonsai" />
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\PdfToImage.bonsai" />
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\OverlayCrossOnImage.bonsai" />
-                  <Expression xsi:type="rx:BehaviorSubject">
-                    <Name>PosteriorImage3</Name>
-                  </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>LikelihoodImage3</Name>
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="cv:Flip">
-                      <cv:Mode>Vertical</cv:Mode>
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="VisualizerMapping" />
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>PosteriorImage3</Name>
-                  </Expression>
-                  <Expression xsi:type="Combinator">
-                    <Combinator xsi:type="cv:Flip">
-                      <cv:Mode>Vertical</cv:Mode>
-                    </Combinator>
-                  </Expression>
-                  <Expression xsi:type="VisualizerMapping" />
                   <Expression xsi:type="SubscribeSubject">
                     <Name>ParameterVector</Name>
                   </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>PosteriorDistribution3</Name>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:WithLatestFrom" />
                   </Expression>
-                  <Expression xsi:type="IncludeWorkflow" Path="Extensions\EvaluateRandomSamples.bonsai">
-                    <NumSamples>6</NumSamples>
+                  <Expression xsi:type="MemberSelector">
+                    <Selector>Item1.Item1</Selector>
                   </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>xVector3</Name>
+                  <Expression xsi:type="MemberSelector">
+                    <Selector>Item2</Selector>
                   </Expression>
-                  <Expression xsi:type="SubscribeSubject">
-                    <Name>tVector3</Name>
+                  <Expression xsi:type="MemberSelector">
+                    <Selector>Item1.Item2</Selector>
+                  </Expression>
+                  <Expression xsi:type="MemberSelector">
+                    <Selector>Item1.Item3</Selector>
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="rx:Zip" />
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="p2:PlotRandomSamples" />
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Take">
+                      <rx:Count>1</rx:Count>
+                    </Combinator>
                   </Expression>
                   <Expression xsi:type="VisualizerMapping">
                     <VisualizerType xsi:type="TypeMapping" TypeArguments="p2:PlotRandomSamplesVisualizer" />
@@ -936,40 +974,32 @@
                   <Edge From="0" To="1" Label="Source1" />
                   <Edge From="1" To="2" Label="Source1" />
                   <Edge From="2" To="3" Label="Source1" />
+                  <Edge From="3" To="25" Label="Source1" />
                   <Edge From="4" To="5" Label="Source1" />
                   <Edge From="5" To="6" Label="Source1" />
                   <Edge From="6" To="7" Label="Source1" />
+                  <Edge From="7" To="25" Label="Source2" />
                   <Edge From="8" To="9" Label="Source1" />
-                  <Edge From="9" To="12" Label="Source1" />
+                  <Edge From="9" To="14" Label="Source1" />
                   <Edge From="10" To="11" Label="Source1" />
-                  <Edge From="11" To="12" Label="Source2" />
+                  <Edge From="11" To="14" Label="Source2" />
                   <Edge From="12" To="13" Label="Source1" />
-                  <Edge From="13" To="14" Label="Source1" />
-                  <Edge From="14" To="15" Label="Source1" />
+                  <Edge From="13" To="14" Label="Source3" />
+                  <Edge From="14" To="16" Label="Source1" />
+                  <Edge From="15" To="16" Label="Source2" />
+                  <Edge From="16" To="17" Label="Source1" />
                   <Edge From="16" To="18" Label="Source1" />
-                  <Edge From="17" To="18" Label="Source2" />
-                  <Edge From="18" To="19" Label="Source1" />
-                  <Edge From="20" To="22" Label="Source1" />
-                  <Edge From="21" To="22" Label="Source2" />
+                  <Edge From="16" To="19" Label="Source1" />
+                  <Edge From="16" To="20" Label="Source1" />
+                  <Edge From="17" To="21" Label="Source1" />
+                  <Edge From="18" To="21" Label="Source2" />
+                  <Edge From="19" To="21" Label="Source3" />
+                  <Edge From="20" To="21" Label="Source4" />
+                  <Edge From="21" To="22" Label="Source1" />
                   <Edge From="22" To="23" Label="Source1" />
                   <Edge From="23" To="24" Label="Source1" />
-                  <Edge From="24" To="25" Label="Source1" />
+                  <Edge From="24" To="25" Label="Source3" />
                   <Edge From="25" To="26" Label="Source1" />
-                  <Edge From="27" To="28" Label="Source1" />
-                  <Edge From="28" To="29" Label="Source1" />
-                  <Edge From="29" To="41" Label="Source1" />
-                  <Edge From="30" To="31" Label="Source1" />
-                  <Edge From="31" To="32" Label="Source1" />
-                  <Edge From="32" To="41" Label="Source2" />
-                  <Edge From="33" To="38" Label="Source1" />
-                  <Edge From="34" To="35" Label="Source1" />
-                  <Edge From="35" To="38" Label="Source2" />
-                  <Edge From="36" To="38" Label="Source3" />
-                  <Edge From="37" To="38" Label="Source4" />
-                  <Edge From="38" To="39" Label="Source1" />
-                  <Edge From="39" To="40" Label="Source1" />
-                  <Edge From="40" To="41" Label="Source3" />
-                  <Edge From="41" To="42" Label="Source1" />
                 </Edges>
               </Workflow>
             </Expression>
@@ -984,49 +1014,73 @@
             <Expression xsi:type="WorkflowOutput" />
           </Nodes>
           <Edges>
-            <Edge From="0" To="1" Label="Source1" />
-            <Edge From="1" To="8" Label="Source1" />
-            <Edge From="2" To="3" Label="Source1" />
-            <Edge From="3" To="8" Label="Source2" />
-            <Edge From="4" To="5" Label="Source1" />
-            <Edge From="5" To="8" Label="Source3" />
+            <Edge From="0" To="9" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+            <Edge From="2" To="5" Label="Source1" />
+            <Edge From="3" To="4" Label="Source1" />
+            <Edge From="4" To="5" Label="Source2" />
+            <Edge From="5" To="6" Label="Source1" />
             <Edge From="6" To="7" Label="Source1" />
-            <Edge From="7" To="8" Label="Source4" />
-            <Edge From="8" To="9" Label="Source1" />
+            <Edge From="7" To="8" Label="Source1" />
+            <Edge From="8" To="9" Label="Source2" />
+            <Edge From="9" To="10" Label="Source1" />
+            <Edge From="10" To="11" Label="Source1" />
+            <Edge From="12" To="14" Label="Source1" />
+            <Edge From="13" To="14" Label="Source2" />
+            <Edge From="14" To="15" Label="Source1" />
+            <Edge From="15" To="16" Label="Source1" />
+            <Edge From="16" To="17" Label="Source1" />
+            <Edge From="17" To="18" Label="Source1" />
+            <Edge From="18" To="19" Label="Source1" />
+            <Edge From="19" To="20" Label="Source1" />
+            <Edge From="20" To="21" Label="Source1" />
+            <Edge From="22" To="23" Label="Source1" />
+            <Edge From="23" To="24" Label="Source1" />
+            <Edge From="25" To="26" Label="Source1" />
+            <Edge From="26" To="33" Label="Source1" />
+            <Edge From="27" To="28" Label="Source1" />
+            <Edge From="28" To="33" Label="Source2" />
+            <Edge From="29" To="30" Label="Source1" />
+            <Edge From="30" To="33" Label="Source3" />
+            <Edge From="31" To="32" Label="Source1" />
+            <Edge From="32" To="33" Label="Source4" />
+            <Edge From="33" To="34" Label="Source1" />
           </Edges>
         </Workflow>
       </Expression>
-      <Expression xsi:type="GroupWorkflow">
-        <Name>SaveSyntheticData</Name>
-        <Workflow>
-          <Nodes>
-            <Expression xsi:type="SubscribeSubject">
-              <Name>x</Name>
-            </Expression>
-            <Expression xsi:type="SubscribeSubject">
-              <Name>t</Name>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="rx:Zip" />
-            </Expression>
-            <Expression xsi:type="scr:ExpressionTransform">
-              <scr:Expression>new (it.Item1 as x, it.Item2 as t)</scr:Expression>
-            </Expression>
-            <Expression xsi:type="io:CsvWriter">
-              <io:FileName>..\\..\\data\\synthetic_data.csv</io:FileName>
-              <io:Append>false</io:Append>
-              <io:Overwrite>true</io:Overwrite>
-              <io:Suffix>None</io:Suffix>
-              <io:IncludeHeader>true</io:IncludeHeader>
-            </Expression>
-          </Nodes>
-          <Edges>
-            <Edge From="0" To="2" Label="Source1" />
-            <Edge From="1" To="2" Label="Source2" />
-            <Edge From="2" To="3" Label="Source1" />
-            <Edge From="3" To="4" Label="Source1" />
-          </Edges>
-        </Workflow>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="GroupWorkflow">
+          <Name>SaveSyntheticData</Name>
+          <Workflow>
+            <Nodes>
+              <Expression xsi:type="SubscribeSubject">
+                <Name>x</Name>
+              </Expression>
+              <Expression xsi:type="SubscribeSubject">
+                <Name>t</Name>
+              </Expression>
+              <Expression xsi:type="Combinator">
+                <Combinator xsi:type="rx:Zip" />
+              </Expression>
+              <Expression xsi:type="scr:ExpressionTransform">
+                <scr:Expression>new (it.Item1 as x, it.Item2 as t)</scr:Expression>
+              </Expression>
+              <Expression xsi:type="io:CsvWriter">
+                <io:FileName>..\\..\\data\\synthetic_data.csv</io:FileName>
+                <io:Append>false</io:Append>
+                <io:Overwrite>true</io:Overwrite>
+                <io:Suffix>None</io:Suffix>
+                <io:IncludeHeader>true</io:IncludeHeader>
+              </Expression>
+            </Nodes>
+            <Edges>
+              <Edge From="0" To="2" Label="Source1" />
+              <Edge From="1" To="2" Label="Source2" />
+              <Edge From="2" To="3" Label="Source1" />
+              <Edge From="3" To="4" Label="Source1" />
+            </Edges>
+          </Workflow>
+        </Builder>
       </Expression>
     </Nodes>
     <Edges />

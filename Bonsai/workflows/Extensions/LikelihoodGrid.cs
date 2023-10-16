@@ -16,15 +16,15 @@ public class LikelihoodGrid
 
     public double Beta { get; set; }
 
-    public IObservable<Matrix<double>> Process(IObservable<Tuple<Vector<double>, Vector<double>, Matrix<double>, double, double>> source)
+    public IObservable<Matrix<double>> Process(IObservable<Tuple<double, double, Vector<double>, Vector<double>, Matrix<double>>> source)
     {
 
         return source.Select(input => {
-            Vector<double> w0 = input.Item1;
-            Vector<double> w1 = input.Item2;
-            Matrix<double> meshGrid = input.Item3;
-            double x = input.Item4;
-            double t = input.Item5;
+            double x = input.Item1;
+            double t = input.Item2;
+            Vector<double> w0 = input.Item3;
+            Vector<double> w1 = input.Item4;
+            Matrix<double> meshGrid = input.Item5;
 
             Matrix<double> likelihoodGrid = Matrix<double>.Build.Dense(w0.Count, w1.Count, (i, j) => { 
                 return CalculateLikelihood(i, j, w1.Count, meshGrid, x, t); 

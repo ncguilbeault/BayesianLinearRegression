@@ -28,8 +28,6 @@ public class Posterior
 
             Matrix<double> covariance = (covariancePrior + beta * A.Multiply(A.Transpose())).Inverse();
 
-            // Matrix<double> prediction = A.Multiply(t.ToColumnMatrix());
-            // Matrix<double> error = prediction.Multiply(beta);
             Matrix<double> mean = covariance.Multiply(
                 covariancePrior.Multiply(meanPrior).Add(
                     A.Multiply(t.ToColumnMatrix()).Multiply(beta))
