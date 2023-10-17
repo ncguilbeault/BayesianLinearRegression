@@ -497,3 +497,6 @@ local
 
 # data files
 data
+
+# python virtual environment
+.venv

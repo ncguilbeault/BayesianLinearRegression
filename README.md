@@ -37,6 +37,8 @@ In contrast, the Bayesian approach makes use of a prior distribution of expected
 
 In online learning, the bayesian model will update the posterior distribution with every new data point it observes.
 
+In both the Python and Bonsai/C# repositories, there is code to generate the figure in its original form, as well as an "online learning" component to demsotrate how the bayesian regression model changes with each new data sample observed.
+
 
 ## Recommended installation
 
@@ -47,25 +49,27 @@ Inside VS Code install Python extension, Jupyter extension
 
 ## Running in Python
 
-Jupyter notebook is required. Python version 3.10 is recommended but other versions may work also
+Jupyter notebook is required. Python version 3.10.12 is recommended to avoid package conflicts.
 
-It is recommended to use a virtual environment for reproducability. For example, navigate to the directory and run:
+It is recommended to use a virtual environment for reproducability. For example, navigate to the repo directory and run:
 
 `python -m venv .venv`
 
 Then, activate this environment by running:
 
-`.venv\scripts\activate.bat` on Windows, or
+`.venv\scripts\activate` in Windows command line, or
 
-`source .venv\bin\activate` on Linux.
+`source .venv/bin/activate` in Linux terminal.
 
 Install the required packages from the python directory:
 
-`pip install -r requirements.txt`
+`pip install -r python/requirements.txt`
 
-Make sure the appropriate python environment is selected for Jupyter. Look for the option in the top right corner of VS Code to change Jupyter kernel.
+Make sure the appropriate python environment is selected for Jupyter. Look for the option in the top right corner of VS Code to change Jupyter kernel to the newly setup virtual environment.
 
 Hit the `Run All` option.
+
+If a pop up option appears in VS Code which says Ipykernel is required, install it.
 
 The first section creates classes for plotting, data generation, and Bayesian linear regression.
 
@@ -78,13 +82,13 @@ The `Interrupt` button can be pressed at any time to halt the loop.
 
 ## Running in Bonsai-Rx
 
-Bonsai is required to run. You can automatically setup a Bonsai environment by running one of the setup scripts.
+Bonsai version 2.8.1 is required. You can automatically setup a Bonsai environment by running the setup script.
 
-In Windows, open PowerShell and run `.\Setup.ps1`.
+In Windows, open PowerShell. Navigate to the `Bonsai\bonsai_env` directory and run `.\Setup.ps1`.
 
-Alternatively, in Linux, make the script executable and run `./Setup.sh` in the terminal.
+This should automatically download and install the Bonsai executable and required packages. 
 
-This should automatically download and install the Bonsai executable and required packages. Alternatively, you can install Bonsai globally on the machine or in a seperate folder. Manually install the packages found in the Bonsai.config file.
+Alternatively, you can install Bonsai globally on the machine or in a seperate folder and manually install the packages found in the Bonsai.config file by going to `Manage Packages` and installing them.
 
 Once Bonsai and the required packages are installed, launch Bonsai and select `Open file` from the menu. Navigate to the subdirectory called `workflows` and select one of the three workflows.
 
@@ -92,4 +96,4 @@ Once Bonsai and the required packages are installed, launch Bonsai and select `O
 - `OnlineBayesianLinearRegression_KeyDown`: whenever a key is pressed, a new data sample is generated and the likelihood/posterior distribution is updated
 - `OnlineBayesianLinearRegression_Timer`: a new data sample is generated and the likelihood/posterior distribution is updated every second
 
-To open up the visualizer, double click the `FigureGeneration` node (in the main workflow) while the workflow is running. Additionally, you can left click the `FigureGeneration` node, go to `Show Visualizer`, and then select the `TableLayoutPanelVisualizer`. You may have to restart the workflow to see the figure at runtime.
+If the visualizer does not display, double click the `FigureGeneration` node (in the main workflow) while the workflow is running to bring up the visualizer window. Additionally, you can right click the `FigureGeneration` node, go to `Show Visualizer`, and then select the `TableLayoutPanelVisualizer`. You may have to restart the workflow to see the figure at runtime.
