@@ -75,7 +75,7 @@ The first section creates classes for plotting, data generation, and Bayesian li
 
 The next section creates the original 3x4 panel figure.
 
-The last section creates an online learning class that updates the likelihood, posterior distribution, and random data samples every second with each observation of a new data sample.
+The last section creates an online learning class that updates the likelihood, posterior distribution, and random data samples every second with each observation of a new data sample. The posterior is updated sequentially, such that the most recently calculated posterior is fed into the model as the prior, which is then updated based on the likelihood of the most recently observed datapoint.
 
 The `Interrupt` button can be pressed at any time to halt the loop.
 
@@ -90,10 +90,15 @@ This should automatically download and install the Bonsai executable and require
 
 Alternatively, you can install Bonsai globally on the machine or in a seperate folder and manually install the packages found in the Bonsai.config file by going to `Manage Packages` and installing them.
 
-Once Bonsai and the required packages are installed, launch Bonsai and select `Open file` from the menu. Navigate to the subdirectory called `workflows` and select one of the three workflows.
+Once Bonsai and the required packages are installed, launch Bonsai and select `Open file` from the menu. Navigate to the subdirectory called `workflows` and select one of the workflows.
 
-- `BayesianLinearRegression`: when this workflow is run, it will render the original 3x4 panel figure at runtime.
-- `OnlineBayesianLinearRegression_KeyDown`: whenever a key is pressed, a new data sample is generated and the likelihood/posterior distribution is updated
-- `OnlineBayesianLinearRegression_Timer`: a new data sample is generated and the likelihood/posterior distribution is updated every second
+For workflows that calculate the posterior by tracing all data points back to the prior:
+- `BayesianLinearRegression`: when this workflow is run, it will render the original 3x4 panel figure at runtime. Calculates the posterior using all observed data points traced back to the prior.
+- `OnlineBayesianLinearRegression_KeyDown`: whenever a key is pressed, a new data sample is generated and the likelihood/posterior distribution is updated. Calculates the posterior using all observed data points traced back to the prior.
+- `OnlineBayesianLinearRegression_Timer`: a new data sample is generated and the likelihood/posterior distribution is updated every second. Calculates the posterior using all observed data points traced back to the prior.
+
+For workflows that take only the likelihood of the last data point to update the posterior in a sequential manner:
+- `OnlineBayesianLinearRegression_KeyDown_SequentialUpdates`: whenever a key is pressed, a new data sample is generated and the likelihood/posterior distribution is updated. Calculates the posterior by combining the prior with the likelihood of the last data point scaled by a factor determined by the precision (beta).
+- `OnlineBayesianLinearRegression_Timer_SequentialUpdates`: a new data sample is generated and the likelihood/posterior distribution is updated every second. Calculates the posterior by combining the prior with the likelihood of the last data point scaled by a factor determined by the precision (beta).
 
 If the visualizer does not display, double click the `FigureGeneration` node (in the main workflow) while the workflow is running to bring up the visualizer window. Additionally, you can right click the `FigureGeneration` node, go to `Show Visualizer`, and then select the `TableLayoutPanelVisualizer`. You may have to restart the workflow to see the figure at runtime.
